@@ -1,4 +1,3 @@
-// src/pages/Attendance.jsx
 import React, { useState, useEffect, useMemo } from "react";
 import { db } from "../firebase/firebaseConfig";
 import { collection, getDocs, doc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
@@ -15,6 +14,7 @@ export default function AttendancePage() {
 
   const attendanceCollection = collection(db, "attendance");
 
+  // جلب البيانات من Firebase
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -32,15 +32,19 @@ export default function AttendancePage() {
     fetchData();
   }, []);
 
-  const debounceUpdate = debounce(async (docRef, date, field, value) => {
-    try {
-      await updateDoc(docRef, { [`days.${date}.${field}`]: value }, { merge: true });
-    } catch (error) {
-      console.error("خطأ في تحديث اليوم:", error);
-      alert("❌ فشل تحديث اليوم");
-    }
-  }, 300);
+  // debounce لتحديث البيانات بدون ضغط على Firebase
+  const debounceUpdate = useMemo(() => 
+    debounce(async (docRef, date, field, value) => {
+      try {
+        await updateDoc(docRef, { [`days.${date}.${field}`]: value }, { merge: true });
+      } catch (error) {
+        console.error("خطأ في تحديث اليوم:", error);
+        alert("❌ فشل تحديث اليوم");
+      }
+    }, 300),
+  []);
 
+  // إضافة طفل جديد
   const addChild = async () => {
     const trimmedName = newChildName.trim();
     if (!trimmedName) return alert("⚠️ أدخل اسم الطفل");
@@ -59,6 +63,7 @@ export default function AttendancePage() {
     }
   };
 
+  // تحديث حالة الحضور
   const handleCheckboxChange = (childId, field, checked) => {
     setChildren(prev =>
       prev.map(c => {
@@ -73,6 +78,7 @@ export default function AttendancePage() {
     );
   };
 
+  // حذف طفل
   const deleteChild = async (childId) => {
     const docRef = doc(db, "attendance", childId);
     try {
@@ -84,6 +90,7 @@ export default function AttendancePage() {
     }
   };
 
+  // إعادة ضبط الحضور لليوم المحدد
   const resetAttendance = async () => {
     if (!window.confirm("هل أنت متأكد من إعادة ضبط الحضور لهذا اليوم؟")) return;
     try {
@@ -101,6 +108,7 @@ export default function AttendancePage() {
     }
   };
 
+  // رفع بيانات من Excel
   const handleUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -135,6 +143,7 @@ export default function AttendancePage() {
     e.target.value = "";
   };
 
+  // تصفية وعرض البيانات
   const filteredChildren = useMemo(() => 
     children
       .filter(c => c.name.toLowerCase().includes(search.toLowerCase()))
