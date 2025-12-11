@@ -5,6 +5,5 @@ export default defineConfig({
   plugins: [react()],
   build: {
     outDir: 'dist'
-  },
-  base: "./"  // مهم جدًا عشان الملفات تظهر صح على Vercel
+  }
 });
