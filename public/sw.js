@@ -1,5 +1,3 @@
-// ========= SERVICE WORKER FOR VITE PWA ========= //
-
 const CACHE_NAME = "church-cache-v3";
 
 const ASSETS = [
@@ -33,11 +31,9 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.url.includes("vite")) return;
-
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
-
       return fetch(event.request)
         .then((res) => {
           return caches.open(CACHE_NAME).then((cache) => {
